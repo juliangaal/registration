@@ -41,7 +41,7 @@ def translate(points, x, y):
 def main():
     points = []
     rot = -np.pi/2
-    lim = 25
+    lim = 1000
     ox = oy = lim//2
     rotation = np.pi/32
 
@@ -58,10 +58,10 @@ def main():
               PointField('z', 8, PointField.FLOAT32, 1)]
 
     header = Header()
-    header.frame_id = "map"
+    header.frame_id = "laser"
     pcl_scan = point_cloud2.create_cloud(header, fields, points)
     header = Header()
-    header.frame_id = "map"
+    header.frame_id = "laser"
     rotated_points = rotate_points(points, 0, 0, rotation)
     pcl_model = point_cloud2.create_cloud(header, fields, rotated_points)
 

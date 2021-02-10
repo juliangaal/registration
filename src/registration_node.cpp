@@ -9,19 +9,20 @@
 #include <tuple>
 #include <vector>
 
+#include <angles/angles.h>
 #include <ros/ros.h>
-#include <numeric>
 #include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
 #include <geometry_msgs/Point32.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/Header.h>
 #include <pcl_ros/transforms.h>
 #include <Eigen/Dense>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_broadcaster.h>
 
 #define PTPTR_TO_COUT(X) "( " << X->x << " / " << X->y << " / " << X->z << " )"
 #define PT_TO_COUT(X) "( " << X.x << " / " << X.y << " / " << X.z << " )"
@@ -31,6 +32,8 @@ using MySyncPolicy = message_filters::sync_policies::ApproximateTime<sensor_msgs
 using CorrPair = std::pair<const geometry_msgs::Point32*, const geometry_msgs::Point32*>;
 using CorrVec =  std::vector<CorrPair>;
 Eigen::Vector3f global_transform;
+
+float max_distance = 1.f;
 
 ros::Publisher corr_pub;
 ros::Publisher pcl_rot_pub;
@@ -98,9 +101,9 @@ void calculateCorrelations(const sensor_msgs::PointCloud2& scan_cloud, const sen
         for (size_t model_i = 0; model_i < model_cloud->width; ++model_i)
         {
             auto distance = euclideanDistance(&scan_points[scan_i], &model_points[model_i]);
-            if (distance < shortest_distance)
+            if (distance < shortest_distance && distance < max_distance)
             {
-                best_pair = std::make_pair(&model_points[model_i], &scan_points[scan_i]);
+                best_pair = std::make_pair(&model_points[model_i], &scan_points[model_i]);
                 found_corr = true;
                 shortest_distance = distance;
             }
@@ -132,8 +135,6 @@ void transformPointCloud(const Eigen::Vector3f& transform, sensor_msgs::PointClo
     Eigen::Matrix3f rot = createRotationMatrix(transform.z());
     rot(0, 2) = transform.x();
     rot(1, 2) = transform.y();
-
-    std::cout << rot << "\n";
 
     Eigen::Vector3f v;
     for (auto index = 0u; index < out_cloud.width; ++index)
@@ -185,7 +186,6 @@ Eigen::Vector3f calculateTransform(const CorrVec& correlations)
     ROS_INFO_STREAM("Calculated summation_y: " << PT_TO_COUT(s_y));
 
     // Calculate estimated rotation
-    std::cout << s_y.x - s_x.y << " / " << s_x.x + s_y.y << "\n";
     float rotation = std::atan2(s_y.x - s_x.y, s_x.x + s_y.y);
 
     // Calculate estimated translation
@@ -199,6 +199,25 @@ Eigen::Vector3f calculateTransform(const CorrVec& correlations)
     };
 
     return transformation;
+}
+
+void publishTransform(const Eigen::Vector3f& tf, const std_msgs::Header& header)
+{
+    geometry_msgs::TransformStamped tf_stamped;
+    tf_stamped.header.stamp = header.stamp;
+    tf_stamped.header.frame_id = "base_link";
+    tf_stamped.child_frame_id = header.frame_id;
+
+    tf2::Transform transform;
+    tf2::Quaternion rot;
+    rot.setEuler (0.0f, 0.0f, tf.z());
+    transform.setRotation (rot);
+    transform.setOrigin (tf2::Vector3 (tf.x(), tf.y(), 0.0));
+
+    tf2::convert(transform, tf_stamped.transform);
+
+    static tf2_ros::TransformBroadcaster br;
+    br.sendTransform(tf_stamped);
 }
 
 void laserCallback(const sensor_msgs::PointCloud2::ConstPtr& scan_cloud, const sensor_msgs::PointCloud2::ConstPtr& model_cloud)
@@ -217,21 +236,24 @@ void laserCallback(const sensor_msgs::PointCloud2::ConstPtr& scan_cloud, const s
     Eigen::Vector3f delta_trans(1.f, 1.f, 1.f);
     size_t it = 0;
 
-    while (it <= 10)
+    while (delta_trans.z() > angles::from_degrees(1) && it <= 10)
     {
         CorrVec correlations{n_points};
         calculateCorrelations(transformed_cloud, model_cloud, correlations);
 
         delta_trans = calculateTransform(correlations);
-        ROS_INFO_STREAM(++it << " - Translation: (" << delta_trans.x() << "/" << delta_trans.y() << "), rot: " << delta_trans.z());
+        ROS_INFO_STREAM(it << " - Translation: (" << delta_trans.x() << "/" << delta_trans.y() << "), rot: " << delta_trans.z());
 
         transformPointCloud(delta_trans, transformed_cloud);
 
         global_trans += createRotationMatrix(delta_trans.z()) * delta_trans;
+        ++it;
     }
 
     ROS_INFO_STREAM("Done. Global transform: (" << global_trans.x() << "/" << global_trans.y() << "), rot: " << global_trans.z() << "\n");
     pcl_rot_pub.publish(transformed_cloud);
+
+    publishTransform(global_trans, model_cloud->header);
 }
 
 

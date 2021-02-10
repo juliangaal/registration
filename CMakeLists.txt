@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   visualization_msgs
   message_filters
+  angles
   pcl_ros
 )
 
@@ -23,7 +24,7 @@ catkin_package(
 #  DEPENDS system_lib
 )
 
-catkin_install_python(PROGRAMS scripts/pcl_publisher.py scripts/talker.py
+catkin_install_python(PROGRAMS scripts/pcl_publisher.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
