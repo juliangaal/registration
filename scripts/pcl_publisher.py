@@ -34,14 +34,14 @@ def rotate_points(points, cx, cy, angle):
 def translate(points, x, y):
     result_points = []
     for p in points:
-        result_points.append([p[0] + x, p[1] + y])
+        result_points.append([p[0] + x, p[1] + y, p[2]])
     return result_points
 
 
 def main():
     points = []
     rot = -np.pi/2
-    lim = 1000
+    lim = 30
     ox = oy = lim//2
     rotation = np.pi/32
 
@@ -57,26 +57,19 @@ def main():
               PointField('y', 4, PointField.FLOAT32, 1),
               PointField('z', 8, PointField.FLOAT32, 1)]
 
-    header = Header()
-    header.frame_id = "laser"
-    pcl_scan = point_cloud2.create_cloud(header, fields, points)
-    header = Header()
-    header.frame_id = "laser"
-    rotated_points = rotate_points(points, 0, 0, rotation)
-    pcl_model = point_cloud2.create_cloud(header, fields, rotated_points)
-
     while not rospy.is_shutdown():
-        pcl_scan.header.stamp = rospy.Time.now()
-        pub_scan.publish(pcl_scan)
-        rospy.sleep(1)
-        pcl_model.header.stamp = rospy.Time.now()
-        pub_model.publish(pcl_model)
-        rospy.loginfo("Published pcl: {} and {} deg".format(0, rotation))
+        header = Header()
+        header.frame_id = "laser"
+        header.stamp = rospy.Time.now()
+        pcl = point_cloud2.create_cloud(header, fields, points)
+        points = translate(points, 0.5, 0.5)
+        pcl_pub.publish(pcl)
+        rospy.sleep(1.5)
+        rospy.loginfo("Published scan")
 
 
 if __name__ == '__main__':
     rospy.init_node("create_pcl2")
-    pub_scan = rospy.Publisher("scan_cloud", PointCloud2, queue_size=2)
-    pub_model = rospy.Publisher("model_cloud", PointCloud2, queue_size=2)
+    pcl_pub = rospy.Publisher("pcl", PointCloud2, queue_size=2)
     rospy.loginfo("Starting node")
     main()
