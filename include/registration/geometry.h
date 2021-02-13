@@ -12,6 +12,15 @@
 namespace registration::geometry
 {
 
+/**
+ * Creates rotation matrix around z-axis from Transformation (tx,ty,theta):
+ * * tx: translation x
+ * * ty: translation y
+ * * theta: rotation around z-axis
+ *
+ * @param transform ransformation (tx,ty,theta)
+ * @return rotation matrix around z axis, _with_ translation
+ */
 inline Eigen::Matrix3f createRotationMatrix(const Eigen::Vector3f &transform)
 {
     const auto& theta = transform.z();
@@ -30,6 +39,12 @@ inline Eigen::Matrix3f createRotationMatrix(const Eigen::Vector3f &transform)
     return rot;
 }
 
+/**
+ * Creates rotation matrix around z-axis from rotation angle:
+ *
+ * @param theta rotation around z
+ * @return @return rotation matrix around z axis, _without_ any form of translation
+ */
 inline Eigen::Matrix3f createRotationMatrix(float theta)
 {
     Eigen::Matrix3f rot = Eigen::Matrix3f::Identity();
@@ -40,6 +55,12 @@ inline Eigen::Matrix3f createRotationMatrix(float theta)
     return rot;
 }
 
+/**
+ * Transform point cloud with translation tx, translation ty and rotation theta (around z axis)
+ *
+ * @param transform Transformation (tx, ty, theta)
+ * @param out_cloud resulting pointcloud
+ */
 inline void transformPointCloud(const Eigen::Vector3f &transform, sensor_msgs::PointCloud2 &out_cloud)
 {
     auto *out_points = reinterpret_cast<geometry_msgs::Point32 *>(out_cloud.data.data());
@@ -57,6 +78,13 @@ inline void transformPointCloud(const Eigen::Vector3f &transform, sensor_msgs::P
     }
 }
 
+/**
+ * Calculates euclidean distance between two geometry_msgs::Point
+ *
+ * @param p1 point 1
+ * @param p2 point 2
+ * @return euclidean distance
+ */
 inline float euclideanDistance(const geometry_msgs::Point32 *p1, const geometry_msgs::Point32 *p2)
 {
 	return std::sqrt(std::pow(p2->x - p1->x, 2.f) + std::pow(p2->y - p1->y, 2.f) + std::pow(p2->z - p1->z, 2.f));

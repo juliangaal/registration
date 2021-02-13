@@ -28,9 +28,14 @@ catkin_install_python(PROGRAMS scripts/pcl_publisher.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+add_library(registration SHARED src/registration.cpp)
+target_compile_options(registration PRIVATE -Wall -Weffc++ -Wpedantic -ffast-math -Wextra)
+target_include_directories(registration PRIVATE ${catkin_INCLUDE_DIRS} include)
+target_link_libraries(registration PUBLIC ${catkin_LIBRARIES})
+
 add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 target_include_directories(${PROJECT_NAME}_node PRIVATE ${catkin_INCLUDE_DIRS} include)
-target_link_libraries(${PROJECT_NAME}_node PRIVATE ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_node PRIVATE ${catkin_LIBRARIES} registration)
 
 if (CATKIN_ENABLE_TESTING)
     find_package(GTest REQUIRED)
