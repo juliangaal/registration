@@ -29,6 +29,17 @@ catkin_install_python(PROGRAMS scripts/pcl_publisher.py
 )
 
 add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
-target_include_directories(${PROJECT_NAME}_node PRIVATE ${catkin_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME}_node PRIVATE ${catkin_INCLUDE_DIRS} include)
 target_link_libraries(${PROJECT_NAME}_node PRIVATE ${catkin_LIBRARIES})
 
+if (CATKIN_ENABLE_TESTING)
+    find_package(GTest REQUIRED)
+    find_package(rostest REQUIRED)
+
+    add_rostest_gtest(restration_test
+        test/${PROJECT_NAME}_test.launch
+        test/${PROJECT_NAME}_test.cpp
+    )
+
+    target_link_libraries(restration_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+endif()
