@@ -90,7 +90,7 @@ inline float euclideanDistance(const geometry_msgs::Point32 *p1, const geometry_
 {
 	if (!p1 or !p2)
 	{
-		ROS_WARN("Received nullptr in euclideanDistance calculation! (If this happens during rotest, don't worry)");
+		ROS_WARN("Received nullptr in euclideanDistance calculation! (If this happens during rostest, don't worry)");
 		return 0.f;
 	}
 	

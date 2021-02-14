@@ -18,7 +18,7 @@
 
 #include <Eigen/Dense>
 
-constexpr float epsilon = 0.0001;
+constexpr float epsilon = 0.001;
 
 TEST(MiscTest, centers)
 {
@@ -143,7 +143,7 @@ TEST(GeometryTest, euclideanDistance)
 	ASSERT_FLOAT_EQ(geometry::euclideanDistance(nullptr, nullptr), 0.f);
 }
 
-TEST(GeometryTest, transformPointCloud)
+TEST(GeometryTest, transformPointCloud_rotation)
 {
 	using namespace registration;
 	
@@ -184,16 +184,73 @@ TEST(GeometryTest, transformPointCloud)
 	points[0] = MyPoint{1, 1, 0};
 	points[1] = MyPoint{2, 2, 0};
 	
-	Eigen::Vector3f trans{1, 1, 0};
+	Eigen::Vector3f trans{0, 0, M_PI};
 	
 	geometry::transformPointCloud(trans, cloud);
 	
-	ASSERT_NEAR(points[0].x(), 2.f, epsilon);
-	ASSERT_NEAR(points[0].y(), 2.f, epsilon);
+	ASSERT_NEAR(points[0].x(), -1.f, epsilon);
+	ASSERT_NEAR(points[0].y(), -1.f, epsilon);
 	ASSERT_NEAR(points[0].z(), 0.f, epsilon);
-	ASSERT_NEAR(points[1].x(), 3.f, epsilon);
-	ASSERT_NEAR(points[1].y(), 3.f, epsilon);
+	ASSERT_NEAR(points[1].x(), -2.f, epsilon);
+	ASSERT_NEAR(points[1].y(), -2.f, epsilon);
 	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
+	
+	// rotate back
+	geometry::transformPointCloud(trans, cloud);
+	
+	ASSERT_NEAR(points[0].x(), 1.f, epsilon);
+	ASSERT_NEAR(points[0].y(), 1.f, epsilon);
+	ASSERT_NEAR(points[0].z(), 0.f, epsilon);
+	ASSERT_NEAR(points[1].x(), 2.f, epsilon);
+	ASSERT_NEAR(points[1].y(), 2.f, epsilon);
+	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
+	
+	// points now (1,0) and (2,0)
+	points[0].x() = 1;
+	points[0].y() = 0;
+	points[0].z() = 0;
+	points[1].x() = 2;
+	points[1].y() = 0;
+	points[1].z() = 0;
+	
+	// rotate 90 deg
+	trans.z() = M_PI/2.f;
+	geometry::transformPointCloud(trans, cloud);
+	
+	ASSERT_NEAR(points[0].x(), 0.f, epsilon);
+	ASSERT_NEAR(points[0].y(), 1.f, epsilon);
+	ASSERT_NEAR(points[0].z(), 0.f, epsilon);
+	ASSERT_NEAR(points[1].x(), 0.f, epsilon);
+	ASSERT_NEAR(points[1].y(), 2.f, epsilon);
+	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
+	
+	// rotate back -45 deg
+	trans.z() = -M_PI/4.f;
+	geometry::transformPointCloud(trans, cloud);
+	
+	ASSERT_NEAR(points[0].x(), .707f, epsilon);
+	ASSERT_NEAR(points[0].y(), .707f, epsilon);
+	ASSERT_NEAR(points[0].z(), 0.f, epsilon);
+	ASSERT_NEAR(points[1].x(), 1.414f, epsilon);
+	ASSERT_NEAR(points[1].y(), 1.414f, epsilon);
+	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
+	
+	// rotate 45 deg
+	trans.z() = M_PI/4.f;
+	geometry::transformPointCloud(trans, cloud);
+	
+	ASSERT_NEAR(points[0].x(), 0.f, epsilon);
+	ASSERT_NEAR(points[0].y(), 1.f, epsilon);
+	ASSERT_NEAR(points[0].z(), 0.f, epsilon);
+	ASSERT_NEAR(points[1].x(), 0.f, epsilon);
+	ASSERT_NEAR(points[1].y(), 2.f, epsilon);
+	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
+}
+
+TEST(GeometryTest, transformPointCloud_translation)
+{
+	using namespace registration;
+	// TODO
 }
 
 int main(int argc, char **argv)
