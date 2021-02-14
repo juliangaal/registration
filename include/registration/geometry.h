@@ -7,6 +7,7 @@
  */
 
 #include <Eigen/Dense>
+#include <ros/console.h>
 #include <sensor_msgs/PointCloud2.h>
 
 namespace registration::geometry
@@ -87,6 +88,12 @@ inline void transformPointCloud(const Eigen::Vector3f &transform, sensor_msgs::P
  */
 inline float euclideanDistance(const geometry_msgs::Point32 *p1, const geometry_msgs::Point32 *p2)
 {
+	if (!p1 or !p2)
+	{
+		ROS_WARN("Received nullptr in euclideanDistance calculation! (If this happens during rotest, don't worry)");
+		return 0.f;
+	}
+	
 	return std::sqrt(std::pow(p2->x - p1->x, 2.f) + std::pow(p2->y - p1->y, 2.f) + std::pow(p2->z - p1->z, 2.f));
 }
 

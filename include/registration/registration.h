@@ -8,28 +8,44 @@
 
 #include <queue>
 #include <string>
-#include <vector>
 #include <cmath>
 
 #include <ros/node_handle.h>
-#include <geometry_msgs/Point32.h>
+#include <registration/types.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <tf2_ros/transform_broadcaster.h>
 
 #include <Eigen/Dense>
-
-using CorrPair = std::pair<const geometry_msgs::Point32*, const geometry_msgs::Point32*>;
-using CorrVec =  std::vector<CorrPair>;
 
 namespace registration
 {
 
+/**
+ * Performs registration based on ICP. Calculates Transform based on 'Mobile Roboter' (Hertzberg, Laengemann, Nuechter)
+ */
 class Registration
 {
 public:
+	/**
+	 * Registration constructor
+	 *
+	 * @param nh NodeHandle, for pubs and subs
+	 * @param topic topic to subscribe to
+	 * @param queue_size size of queue
+	 * @param max_distance max distance after which points won't be correlated
+	 */
 	Registration(ros::NodeHandle& nh, const std::string& topic, size_t queue_size, float max_distance);
+	
+	/// Default destructor. Queue cleanup is handles by ROS
 	~Registration() = default;
+	
+	/// Delete move constructor
 	Registration(Registration&& other) = delete;
+	
+	/// Delete Copy Constructor
 	Registration(const Registration& other) = delete;
+	
+	/// Delete Assignment operator
 	Registration& operator=(const Registration& other) = delete;
 	
 	/**
@@ -46,7 +62,7 @@ public:
 	Eigen::Vector3f
 	performRegistration(const sensor_msgs::PointCloud2& scan_cloud,
 					 	const sensor_msgs::PointCloud2& model_cloud,
-					 	CorrVec& correlations);
+					 	types::CorrVec& correlations);
 	
 private:
 	/**
@@ -71,32 +87,24 @@ private:
 	 * @param s_center scan center
 	 * @return Transformation (tx, ty, theta)
 	 */
-	Eigen::Vector3f calculateTransform(const CorrVec& correlations,
+	Eigen::Vector3f calculateTransform(const types::CorrVec& correlations,
 									   const geometry_msgs::Point32& m_center,
 									   const geometry_msgs::Point32& s_center);
 	
-	/**
-	 * Update centers of correlating point clouds with new match by acculating
-	 *
-	 * @param m_center model center
-	 * @param s_center scan center
-	 * @param pair new best match between model and scan point
-	 */
-	void updateCenters(geometry_msgs::Point32& m_center, geometry_msgs::Point32& s_center, const CorrPair& pair);
-	
-	/**
-	 * Average center accumulations
-	 *
-	 * @param m_center model center
-	 * @param s_center scan center
-	 * @param correlations correlations between model m and scan s points
-	 */
-	void avgCenters(geometry_msgs::Point32& m_center, geometry_msgs::Point32& s_center, const CorrVec& correlations);
-	
+	/// max distance after which points won't be correlated
 	float max_distance;
+	
+	/// subscribes to pointcloud
 	ros::Subscriber subscriber;
+	
+	/// publishes transformed cloud, for debugging
 	ros::Publisher publisher;
+	
+	/// builds queue of 2 scans
 	std::queue<sensor_msgs::PointCloud2> queue;
+	
+	/// publishes transform
+	tf2_ros::TransformBroadcaster br;
 };
 
 } // namespace registration

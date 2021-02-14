@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(registration)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CATKIN_ENABLE_TESTING ON)
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
@@ -34,6 +35,7 @@ target_include_directories(registration PRIVATE ${catkin_INCLUDE_DIRS} include)
 target_link_libraries(registration PUBLIC ${catkin_LIBRARIES})
 
 add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
+target_compile_options(registration PRIVATE -Wall -Weffc++ -Wpedantic -ffast-math -Wextra)
 target_include_directories(${PROJECT_NAME}_node PRIVATE ${catkin_INCLUDE_DIRS} include)
 target_link_libraries(${PROJECT_NAME}_node PRIVATE ${catkin_LIBRARIES} registration)
 
@@ -41,10 +43,11 @@ if (CATKIN_ENABLE_TESTING)
     find_package(GTest REQUIRED)
     find_package(rostest REQUIRED)
 
-    add_rostest_gtest(restration_test
-        test/${PROJECT_NAME}_test.launch
+    add_rostest_gtest(registration_test
+        test/${PROJECT_NAME}_test.test
         test/${PROJECT_NAME}_test.cpp
     )
 
-    target_link_libraries(restration_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    target_include_directories(registration_test PRIVATE ${catkin_INCLUDE_DIRS} include)
+    target_link_libraries(registration_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES} registration)
 endif()

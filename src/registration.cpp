@@ -14,13 +14,18 @@
 
 using namespace registration;
 
-Registration::Registration(ros::NodeHandle& nh, const std::string& topic,  size_t queue_size, float max_distance)
+Registration::Registration(ros::NodeHandle& nh,
+						   const std::string& topic,
+						   size_t queue_size,
+						   float max_distance)
 : max_distance{max_distance}
 , subscriber{nh.subscribe(topic, queue_size, &Registration::pclCallback, this)}
 , publisher{nh.advertise<sensor_msgs::PointCloud2>("transformed_pcl", 10)}
 , queue{}
+, br{}
 {
-
+	THROW_IF(topic.empty(), "Topic can't be empty");
+	THROW_IF_COND(queue_size, <, 2, "Queue size must be larger than 2");
 }
 
 void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
@@ -50,7 +55,7 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 	Eigen::Vector3f delta_trans(1.f, 1.f, 1.f);
 	size_t it = 0;
 	
-	CorrVec correlations{n_points};
+	types::CorrVec correlations{n_points};
 	
 	while (delta_trans.z() > angles::from_degrees(1) && it <= 10)
 	{
@@ -93,32 +98,12 @@ void Registration::publishTransform(const Eigen::Vector3f& tf, const std_msgs::H
 	
 	tf2::convert(transform, tf_stamped.transform);
 	
-	static tf2_ros::TransformBroadcaster br;
 	br.sendTransform(tf_stamped);
 }
 
-void Registration::updateCenters(geometry_msgs::Point32& m_center, geometry_msgs::Point32& s_center, const CorrPair& pair)
-{
-	const auto& [mp, sp] = pair;
-	m_center.x += mp->x;
-	m_center.y += mp->y;
-	m_center.z += mp->z;
-	s_center.x += sp->x;
-	s_center.y += sp->y;
-	s_center.z += sp->z;
-}
-
-void Registration::avgCenters(geometry_msgs::Point32& m_center, geometry_msgs::Point32& s_center, const CorrVec& correlations)
-{
-	m_center.x /= correlations.size();
-	m_center.y /= correlations.size();
-	m_center.z /= correlations.size();
-	s_center.x /= correlations.size();
-	s_center.y /= correlations.size();
-	s_center.z /= correlations.size();
-}
-
-Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2& scan_cloud, const sensor_msgs::PointCloud2& model_cloud, CorrVec& correlations)
+Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2& scan_cloud,
+												  const sensor_msgs::PointCloud2& model_cloud,
+												  types::CorrVec& correlations)
 {
 	// clear old correlations
 	correlations.clear();
@@ -135,7 +120,7 @@ Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2
 	{
 		// parameters for ICP
 		float shortest_distance = std::numeric_limits<float>::max();
-		CorrPair best_pair;
+		types::CorrPair best_pair;
 		bool found_corr = false;
 		
 		for (size_t model_i = 0; model_i < model_cloud.width; ++model_i)
@@ -144,7 +129,7 @@ Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2
 			if (distance < shortest_distance && distance < max_distance)
 			{
 				// new best point: make pait
-				best_pair = std::make_pair(&model_points[model_i], &scan_points[model_i]);
+				best_pair = { &model_points[model_i], &scan_points[model_i] };
 				found_corr = true;
 				shortest_distance = distance;
 			}
@@ -155,25 +140,23 @@ Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2
 			// save best pair
 			correlations.push_back(best_pair);
 			// update centers of corresponding points
-			updateCenters(m_center, s_center, best_pair);
+			misc::updateCenters(m_center, s_center, best_pair);
 		}
 	}
 	
 	// average centers of corresponding points
-	avgCenters(m_center, s_center, correlations);
+	if (correlations.empty())
+	{
+		ROS_WARN("NO correlations found");
+		return { 0.f, 0.f, 0.f };
+	}
+	
+	misc::avgCenters(m_center, s_center, correlations.size());
 	
 	return calculateTransform(correlations, m_center, s_center);
 }
 
-/**
- * Calculates the Transformation (tx, ty, theta) between model and scan
- *
- * @param correlations correlations between model m and scan s points
- * @param m_center model center
- * @param s_center scan center
- * @return Transformation (tx, ty, theta)
- */
-Eigen::Vector3f Registration::calculateTransform(const CorrVec& correlations,
+Eigen::Vector3f Registration::calculateTransform(const types::CorrVec& correlations,
 								   const geometry_msgs::Point32& m_center,
 								   const geometry_msgs::Point32& s_center)
 {
