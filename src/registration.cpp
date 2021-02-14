@@ -60,7 +60,7 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 	while (delta_trans.z() > angles::from_degrees(1) && it <= 10)
 	{
 		// Calculate transform
-		delta_trans = performRegistration(scan_cloud, model_cloud, correlations);
+		delta_trans = performRegistration(scan_cloud, model_cloud, correlations, max_distance);
 		
 		ROS_INFO_STREAM(it << " - Transform:\n" << delta_trans);
 		
@@ -103,7 +103,8 @@ void Registration::publishTransform(const Eigen::Vector3f& tf, const std_msgs::H
 
 Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2& scan_cloud,
 												  const sensor_msgs::PointCloud2& model_cloud,
-												  types::CorrVec& correlations)
+												  types::CorrVec& correlations,
+												  float max_distance)
 {
 	// clear old correlations
 	correlations.clear();

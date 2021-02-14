@@ -247,10 +247,81 @@ TEST(GeometryTest, transformPointCloud_rotation)
 	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
 }
 
-TEST(GeometryTest, transformPointCloud_translation)
+TEST(RegistrationTest, registration)
 {
 	using namespace registration;
-	// TODO
+	
+	// Pointclound in Ebene with 2 points
+	sensor_msgs::PointCloud2 model_cloud;
+	model_cloud.header = std_msgs::Header();
+	model_cloud.height = 1;
+	
+	model_cloud.width = 5;
+	
+	// Define point structure
+	using MyPoint = Eigen::Vector3f;
+	
+	model_cloud.point_step = sizeof(MyPoint);
+	model_cloud.row_step = model_cloud.width * model_cloud.point_step;
+	
+	model_cloud.data.resize(model_cloud.width * model_cloud.height * sizeof(MyPoint));
+	
+	// Describe your MyPoint object
+	model_cloud.fields.resize(3);
+	// MyPoint.x
+	model_cloud.fields[0].name = "x";
+	model_cloud.fields[0].offset = 0;
+	model_cloud.fields[0].datatype = sensor_msgs::PointField::FLOAT32;
+	model_cloud.fields[0].count = 1;
+	// MyPoint.y
+	model_cloud.fields[1].name = "y";
+	model_cloud.fields[1].offset = 4;
+	model_cloud.fields[1].datatype = sensor_msgs::PointField::FLOAT32;
+	model_cloud.fields[1].count = 1;
+	// MyPoint.z
+	model_cloud.fields[2].name = "z";
+	model_cloud.fields[2].offset = 8;
+	model_cloud.fields[2].datatype = sensor_msgs::PointField::FLOAT32;
+	model_cloud.fields[2].count = 1;
+	
+	auto* model_points = reinterpret_cast<MyPoint*>(model_cloud.data.data());
+	model_points[0] = MyPoint{1, 1, 0};
+	model_points[1] = MyPoint{2, 2, 0};
+	model_points[1] = MyPoint{3, 3, 0};
+	model_points[1] = MyPoint{4, 2, 0};
+	model_points[1] = MyPoint{5, 1, 0};
+	
+	{
+		Eigen::Vector3f trans{0.5, 0.5, 0};
+		
+		sensor_msgs::PointCloud2 scan_cloud = model_cloud;
+		
+		geometry::transformPointCloud(trans, scan_cloud);
+		
+		size_t n_points = model_cloud.width;
+		types::CorrVec correlations{n_points};
+		
+		auto trans_result = Registration::performRegistration(scan_cloud, model_cloud, correlations, 1);
+		ASSERT_NEAR(trans.x(), -trans_result.x(), epsilon);
+		ASSERT_NEAR(trans.y(), -trans_result.y(), epsilon);
+		ASSERT_NEAR(trans.z(), -trans_result.z(), epsilon);
+	}
+	
+	{
+		Eigen::Vector3f trans{0., 0., M_PI/8};
+		
+		sensor_msgs::PointCloud2 scan_cloud = model_cloud;
+		
+		geometry::transformPointCloud(trans, scan_cloud);
+		
+		size_t n_points = model_cloud.width;
+		types::CorrVec correlations{n_points};
+		
+		auto trans_result = Registration::performRegistration(scan_cloud, model_cloud, correlations, 1);
+		ASSERT_NEAR(trans.x(), -trans_result.x(), epsilon);
+		ASSERT_NEAR(trans.y(), -trans_result.y(), epsilon);
+		ASSERT_NEAR(trans.z(), -trans_result.z(), epsilon);
+	}
 }
 
 int main(int argc, char **argv)

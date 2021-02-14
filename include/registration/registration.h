@@ -49,6 +49,8 @@ public:
 	Registration& operator=(const Registration& other) = delete;
 	
 	/**
+	 * static for testing
+	 *
 	 * Performs registration:
 	 * 1. calculate correlating points
 	 * 2. computer centers of each model and scan cloud based on these correlations
@@ -57,12 +59,14 @@ public:
 	 * @param scan_cloud scan cloud
 	 * @param model_cloud model cloud
 	 * @param correlations correlations between model m and scan s points
+	 * @param max_distance max distance after which points won't be correlated
 	 * @return Transformation (tx, ty, theta) between model and scan cloud
 	 */
-	Eigen::Vector3f
+	static Eigen::Vector3f
 	performRegistration(const sensor_msgs::PointCloud2& scan_cloud,
 					 	const sensor_msgs::PointCloud2& model_cloud,
-					 	types::CorrVec& correlations);
+					 	types::CorrVec& correlations,
+					 	float max_distance);
 	
 private:
 	/**
@@ -80,6 +84,8 @@ private:
 	void publishTransform(const Eigen::Vector3f& tf, const std_msgs::Header& header);
 	
 	/**
+	 * static for testing
+	 *
 	 * Calculates the Transformation (tx, ty, theta) between model and scan
 	 *
 	 * @param correlations correlations between model m and scan s points
@@ -87,7 +93,7 @@ private:
 	 * @param s_center scan center
 	 * @return Transformation (tx, ty, theta)
 	 */
-	Eigen::Vector3f calculateTransform(const types::CorrVec& correlations,
+	static Eigen::Vector3f calculateTransform(const types::CorrVec& correlations,
 									   const geometry_msgs::Point32& m_center,
 									   const geometry_msgs::Point32& s_center);
 	

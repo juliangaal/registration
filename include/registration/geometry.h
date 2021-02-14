@@ -71,11 +71,13 @@ inline void transformPointCloud(const Eigen::Vector3f &transform, sensor_msgs::P
     Eigen::Vector3f v;
     for (auto index = 0u; index < out_cloud.width; ++index)
     {
-        v = Eigen::Vector3f(out_points[index].x, out_points[index].y, out_points[index].z);
+    	// homogeneous coordinates!!
+    	// point (x, y, 1) is multiplies with transformation matrix. z is set to 0 in result
+        v = Eigen::Vector3f(out_points[index].x, out_points[index].y, 1);
         v = rot * v;
         out_points[index].x = v[0];
         out_points[index].y = v[1];
-        out_points[index].z = v[2];
+        out_points[index].z = 0;
     }
 }
 
