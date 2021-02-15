@@ -2,36 +2,36 @@
 
 /**
   * @file types.h
-  * @author julian 
+  * @author julian gaal
   * @date 2/14/21
  */
- 
+
 #include <geometry_msgs/Point32.h>
 #include <vector>
 
 namespace registration::types
 {
-	/// defines correlations between two points in point cloud
-	using CorrPair = std::pair<const geometry_msgs::Point32*, const geometry_msgs::Point32*>;
-	
-	/// saves pairs of correlations
-	using CorrVec =  std::vector<CorrPair>;
+/// defines correlations between two points in point cloud
+using CorrPair = std::pair<const geometry_msgs::Point32 *, const geometry_msgs::Point32 *>;
 
-	/**
-	* ICP parameters
-	*/
-	struct ICPParams
-	{
-		/// max distance after which points won't be correlated
-		float max_distance;
-		/// if calculated rotation falls below min_dtheta, Registration is considered done
-		float min_dtheta;
-		/// if max_it is reached, Registration is considered done
-		float max_it;
-	};
+/// saves pairs of correlations
+using CorrVec = std::vector<CorrPair>;
+
+/**
+* ICP parameters
+*/
+struct ICPParams
+{
+	/// max distance after which points won't be correlated
+	float max_distance;
+	/// if calculated rotation falls below min_dtheta, Registration is considered done
+	float min_dtheta;
+	/// if max_it is reached, Registration is considered done
+	float max_it;
+};
 }
 
-inline std::ostream & operator<<(std::ostream &os, const registration::types::ICPParams &icp_params)
+inline std::ostream &operator<<(std::ostream &os, const registration::types::ICPParams &icp_params)
 {
 	os << "ICP Parameters: \n";
 	os << "  max_distance: " << icp_params.max_distance << "\n";

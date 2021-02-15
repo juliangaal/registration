@@ -1,7 +1,7 @@
 
 /**
   * @file registration.cpp
-  * @author julian 
+  * @author julian gaal
   * @date 2/13/21
  */
 
@@ -14,15 +14,12 @@
 
 using namespace registration;
 
-Registration::Registration(ros::NodeHandle& nh,
-						   const std::string& topic,
-						   size_t queue_size,
-						   const types::ICPParams& icp_params)
-: icp_params{icp_params}
-, subscriber{nh.subscribe(topic, queue_size, &Registration::pclCallback, this)}
-, publisher{nh.advertise<sensor_msgs::PointCloud2>("transformed_pcl", 10)}
-, queue{}
-, br{}
+Registration::Registration(ros::NodeHandle &nh,
+													 const std::string &topic,
+													 size_t queue_size,
+													 const types::ICPParams &icp_params)
+		: icp_params{icp_params}, subscriber{nh.subscribe(topic, queue_size, &Registration::pclCallback, this)},
+			publisher{nh.advertise<sensor_msgs::PointCloud2>("transformed_pcl", 10)}, queue{}, br{}
 {
 	THROW_IF(topic.empty(), "Topic can't be empty");
 	THROW_IF(queue_size < 2, "Queue size must be larger than 2");
@@ -31,7 +28,7 @@ Registration::Registration(ros::NodeHandle& nh,
 	THROW_IF(icp_params.max_distance == 0, "max_distance can't be 0");
 }
 
-void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
+void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr &pcl)
 {
 	queue.push(pcl);
 	
@@ -41,8 +38,8 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 		return;
 	}
 	
-	auto& model_cloud = queue.front();
-	auto& scan_cloud = queue.back();
+	auto &model_cloud = queue.front();
+	auto &scan_cloud = queue.back();
 	
 	// Check for empty pointcloud
 	if (scan_cloud->data.empty() or model_cloud->data.empty())
@@ -87,7 +84,7 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 	queue.pop();
 }
 
-void Registration::publishTransform(const Eigen::Vector3f& tf, const std_msgs::Header& header)
+void Registration::publishTransform(const Eigen::Vector3f &tf, const std_msgs::Header &header)
 {
 	geometry_msgs::TransformStamped tf_stamped;
 	tf_stamped.header.stamp = header.stamp;
@@ -96,19 +93,19 @@ void Registration::publishTransform(const Eigen::Vector3f& tf, const std_msgs::H
 	
 	tf2::Transform transform;
 	tf2::Quaternion rot;
-	rot.setEuler (0.0f, 0.0f, tf.z());
-	transform.setRotation (rot);
-	transform.setOrigin (tf2::Vector3 (tf.x(), tf.y(), 0.0));
+	rot.setEuler(0.0f, 0.0f, tf.z());
+	transform.setRotation(rot);
+	transform.setOrigin(tf2::Vector3(tf.x(), tf.y(), 0.0));
 	
 	tf2::convert(transform, tf_stamped.transform);
 	
 	br.sendTransform(tf_stamped);
 }
 
-Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2& scan_cloud,
-												  const sensor_msgs::PointCloud2& model_cloud,
-												  types::CorrVec& correlations,
-												  float max_distance)
+Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2 &scan_cloud,
+																									const sensor_msgs::PointCloud2 &model_cloud,
+																									types::CorrVec &correlations,
+																									float max_distance)
 {
 	// clear old correlations
 	correlations.clear();
@@ -118,8 +115,8 @@ Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2
 	geometry_msgs::Point32 s_center;
 	
 	// Easier to iterate
-	const auto* scan_points = reinterpret_cast<const geometry_msgs::Point32*>(scan_cloud.data.data());
-	const auto* model_points = reinterpret_cast<const geometry_msgs::Point32*>(model_cloud.data.data());
+	const auto *scan_points = reinterpret_cast<const geometry_msgs::Point32 *>(scan_cloud.data.data());
+	const auto *model_points = reinterpret_cast<const geometry_msgs::Point32 *>(model_cloud.data.data());
 	
 	for (size_t scan_i = 0; scan_i < scan_cloud.width; ++scan_i)
 	{
@@ -134,7 +131,7 @@ Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2
 			if (distance < shortest_distance && distance < max_distance)
 			{
 				// new best point: make pait
-				best_pair = { &model_points[model_i], &scan_points[model_i] };
+				best_pair = {&model_points[model_i], &scan_points[model_i]};
 				found_corr = true;
 				shortest_distance = distance;
 			}
@@ -153,7 +150,7 @@ Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2
 	if (correlations.empty())
 	{
 		ROS_WARN("NO correlations found");
-		return { 0.f, 0.f, 0.f };
+		return {0.f, 0.f, 0.f};
 	}
 	
 	misc::avgCenters(m_center, s_center, correlations.size());
@@ -161,15 +158,15 @@ Eigen::Vector3f Registration::performRegistration(const sensor_msgs::PointCloud2
 	return calculateTransform(correlations, m_center, s_center);
 }
 
-Eigen::Vector3f Registration::calculateTransform(const types::CorrVec& correlations,
-								   const geometry_msgs::Point32& m_center,
-								   const geometry_msgs::Point32& s_center)
+Eigen::Vector3f Registration::calculateTransform(const types::CorrVec &correlations,
+																								 const geometry_msgs::Point32 &m_center,
+																								 const geometry_msgs::Point32 &s_center)
 {
 	// Calculate Summations
 	geometry_msgs::Point32 s_x;
 	geometry_msgs::Point32 s_y;
 	
-	for (const auto& [scan_p, model_p]: correlations)
+	for (const auto&[scan_p, model_p]: correlations)
 	{
 		SKIP_NULLPTR(scan_p, model_p);
 		s_x.x += (scan_p->x - m_center.x) * (model_p->x - s_center.x);
@@ -186,11 +183,11 @@ Eigen::Vector3f Registration::calculateTransform(const types::CorrVec& correlati
 	float sin = std::sin(rotation);
 	
 	Eigen::Vector3f transformation
-	{
-			m_center.x - (s_center.x * cos - s_center.y * sin),
-			m_center.y - (s_center.x * sin + s_center.y * cos),
-			rotation
-	};
+			{
+					m_center.x - (s_center.x * cos - s_center.y * sin),
+					m_center.y - (s_center.x * sin + s_center.y * cos),
+					rotation
+			};
 	
 	return transformation;
 }

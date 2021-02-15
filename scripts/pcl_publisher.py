@@ -1,6 +1,5 @@
-import rospy
 import numpy as np
-
+import rospy
 from sensor_msgs import point_cloud2
 from sensor_msgs.msg import PointCloud2, PointField
 from std_msgs.msg import Header
@@ -40,10 +39,10 @@ def translate(points, x, y):
 
 def main():
     points = []
-    rot = -np.pi/2
+    rot = -np.pi / 2
     lim = 30
-    ox = oy = lim//2
-    rotation = np.pi/32
+    ox = oy = lim // 2
+    rotation = np.pi / 32
 
     for i in range(lim):
         pt = [i, i]

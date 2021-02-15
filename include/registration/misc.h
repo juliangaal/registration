@@ -2,7 +2,7 @@
 
 /**
   * @file misc.h
-  * @author julian 
+  * @author julian gaal
   * @date 2/13/21
  */
 
@@ -24,10 +24,10 @@ namespace registration::misc
  * @return ostream, updated
  */
 template<typename T>
-inline std::ostream & operator<<(std::ostream &os, const T &point)
+inline std::ostream &operator<<(std::ostream &os, const T &point)
 {
-    os << point.x << " / " << point.y << " / " << point.z;
-    return os;
+	os << point.x << " / " << point.y << " / " << point.z;
+	return os;
 }
 
 /**
@@ -37,11 +37,11 @@ inline std::ostream & operator<<(std::ostream &os, const T &point)
  * @param s_center scan center
  * @param pair new best match between model and scan point
  */
-inline void updateCenters(geometry_msgs::Point32& m_center,
-						  geometry_msgs::Point32& s_center,
-						  const registration::types::CorrPair& pair)
+inline void updateCenters(geometry_msgs::Point32 &m_center,
+													geometry_msgs::Point32 &s_center,
+													const registration::types::CorrPair &pair)
 {
-	const auto& [mp, sp] = pair;
+	const auto&[mp, sp] = pair;
 	m_center.x += mp->x;
 	m_center.y += mp->y;
 	m_center.z += mp->z;
@@ -57,9 +57,9 @@ inline void updateCenters(geometry_msgs::Point32& m_center,
  * @param s_center scan center
  * @param size number to average with
  */
-inline void avgCenters(geometry_msgs::Point32& m_center,
-					   geometry_msgs::Point32& s_center,
-					   float size)
+inline void avgCenters(geometry_msgs::Point32 &m_center,
+											 geometry_msgs::Point32 &s_center,
+											 float size)
 {
 	m_center.x /= size;
 	m_center.y /= size;

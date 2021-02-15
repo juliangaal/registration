@@ -24,20 +24,20 @@ namespace registration::geometry
  */
 inline Eigen::Matrix3f createRotationMatrix(const Eigen::Vector3f &transform)
 {
-    const auto& theta = transform.z();
-    const auto& tx = transform.x();
-    const auto& ty = transform.y();
-
-    Eigen::Matrix3f rot = Eigen::Matrix3f::Identity();
-    rot(0, 0) = std::cos(theta);
-    rot(0, 1) = -std::sin(theta);
-    rot(1, 0) = std::sin(theta);
-    rot(1, 1) = std::cos(theta);
-
-    rot(0, 2) = tx;
-    rot(1, 2) = ty;
-
-    return rot;
+	const auto &theta = transform.z();
+	const auto &tx = transform.x();
+	const auto &ty = transform.y();
+	
+	Eigen::Matrix3f rot = Eigen::Matrix3f::Identity();
+	rot(0, 0) = std::cos(theta);
+	rot(0, 1) = -std::sin(theta);
+	rot(1, 0) = std::sin(theta);
+	rot(1, 1) = std::cos(theta);
+	
+	rot(0, 2) = tx;
+	rot(1, 2) = ty;
+	
+	return rot;
 }
 
 /**
@@ -48,12 +48,12 @@ inline Eigen::Matrix3f createRotationMatrix(const Eigen::Vector3f &transform)
  */
 inline Eigen::Matrix3f createRotationMatrix(float theta)
 {
-    Eigen::Matrix3f rot = Eigen::Matrix3f::Identity();
-    rot(0,0) = std::cos (theta);
-    rot(0,1) = -std::sin(theta);
-    rot(1,0) = std::sin(theta);
-    rot(1,1) = std::cos(theta);
-    return rot;
+	Eigen::Matrix3f rot = Eigen::Matrix3f::Identity();
+	rot(0, 0) = std::cos(theta);
+	rot(0, 1) = -std::sin(theta);
+	rot(1, 0) = std::sin(theta);
+	rot(1, 1) = std::cos(theta);
+	return rot;
 }
 
 /**
@@ -64,21 +64,21 @@ inline Eigen::Matrix3f createRotationMatrix(float theta)
  */
 inline void transformPointCloud(const Eigen::Vector3f &transform, sensor_msgs::PointCloud2 &out_cloud)
 {
-    auto *out_points = reinterpret_cast<geometry_msgs::Point32 *>(out_cloud.data.data());
-
-    Eigen::Matrix3f rot = createRotationMatrix(transform);
-
-    Eigen::Vector3f v;
-    for (auto index = 0u; index < out_cloud.width; ++index)
-    {
-    	// homogeneous coordinates!!
-    	// point (x, y, 1) is multiplies with transformation matrix. z is set to 0 in result
-        v = Eigen::Vector3f(out_points[index].x, out_points[index].y, 1);
-        v = rot * v;
-        out_points[index].x = v[0];
-        out_points[index].y = v[1];
-        out_points[index].z = 0;
-    }
+	auto *out_points = reinterpret_cast<geometry_msgs::Point32 *>(out_cloud.data.data());
+	
+	Eigen::Matrix3f rot = createRotationMatrix(transform);
+	
+	Eigen::Vector3f v;
+	for (auto index = 0u; index < out_cloud.width; ++index)
+	{
+		// homogeneous coordinates!!
+		// point (x, y, 1) is multiplies with transformation matrix. z is set to 0 in result
+		v = Eigen::Vector3f(out_points[index].x, out_points[index].y, 1);
+		v = rot * v;
+		out_points[index].x = v[0];
+		out_points[index].y = v[1];
+		out_points[index].z = 0;
+	}
 }
 
 /**

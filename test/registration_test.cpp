@@ -24,23 +24,23 @@ TEST(MiscTest, centers)
 {
 	using namespace registration;
 	
-    geometry_msgs::Point32 center;
-    center.x = 1;
-    center.y = 1;
-    center.z = 1;
-    
-    geometry_msgs::Point32 center2 = center;
-    
-    geometry_msgs::Point32 p1;
-    p1.x = 1;
-    p1.y = 2;
-    p1.z = 3;
-    
-    geometry_msgs::Point32 p2 = p1;
-    types::CorrPair corr = { &p1, &p2 };
-    
-    misc::updateCenters(center, center2, corr);
-    
+	geometry_msgs::Point32 center;
+	center.x = 1;
+	center.y = 1;
+	center.z = 1;
+	
+	geometry_msgs::Point32 center2 = center;
+	
+	geometry_msgs::Point32 p1;
+	p1.x = 1;
+	p1.y = 2;
+	p1.z = 3;
+	
+	geometry_msgs::Point32 p2 = p1;
+	types::CorrPair corr = {&p1, &p2};
+	
+	misc::updateCenters(center, center2, corr);
+	
 	ASSERT_TRUE(center.x == 2.f);
 	ASSERT_TRUE(center.y == 3.f);
 	ASSERT_TRUE(center.z == 4.f);
@@ -100,8 +100,8 @@ TEST(GeometryTest, rotation_and_translation)
 	
 	auto rot = geometry::createRotationMatrix(trans);
 	ASSERT_NEAR(rot(0, 0), -1.f, epsilon);
-	ASSERT_NEAR(rot(0, 1),  0.f, epsilon);
-	ASSERT_NEAR(rot(1, 0),  0.f, epsilon);
+	ASSERT_NEAR(rot(0, 1), 0.f, epsilon);
+	ASSERT_NEAR(rot(1, 0), 0.f, epsilon);
 	ASSERT_NEAR(rot(1, 1), -1.f, epsilon);
 	
 	ASSERT_NEAR(rot(0, 2), 1.f, epsilon);
@@ -180,7 +180,7 @@ TEST(GeometryTest, transformPointCloud_rotation)
 	cloud.fields[2].datatype = sensor_msgs::PointField::FLOAT32;
 	cloud.fields[2].count = 1;
 	
-	auto* points = reinterpret_cast<MyPoint*>(cloud.data.data());
+	auto *points = reinterpret_cast<MyPoint *>(cloud.data.data());
 	points[0] = MyPoint{1, 1, 0};
 	points[1] = MyPoint{2, 2, 0};
 	
@@ -214,7 +214,7 @@ TEST(GeometryTest, transformPointCloud_rotation)
 	points[1].z() = 0;
 	
 	// rotate 90 deg
-	trans.z() = M_PI/2.f;
+	trans.z() = M_PI / 2.f;
 	geometry::transformPointCloud(trans, cloud);
 	
 	ASSERT_NEAR(points[0].x(), 0.f, epsilon);
@@ -225,7 +225,7 @@ TEST(GeometryTest, transformPointCloud_rotation)
 	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
 	
 	// rotate back -45 deg
-	trans.z() = -M_PI/4.f;
+	trans.z() = -M_PI / 4.f;
 	geometry::transformPointCloud(trans, cloud);
 	
 	ASSERT_NEAR(points[0].x(), .707f, epsilon);
@@ -236,7 +236,7 @@ TEST(GeometryTest, transformPointCloud_rotation)
 	ASSERT_NEAR(points[1].z(), 0.f, epsilon);
 	
 	// rotate 45 deg
-	trans.z() = M_PI/4.f;
+	trans.z() = M_PI / 4.f;
 	geometry::transformPointCloud(trans, cloud);
 	
 	ASSERT_NEAR(points[0].x(), 0.f, epsilon);
@@ -284,7 +284,7 @@ TEST(RegistrationTest, registration)
 	model_cloud.fields[2].datatype = sensor_msgs::PointField::FLOAT32;
 	model_cloud.fields[2].count = 1;
 	
-	auto* model_points = reinterpret_cast<MyPoint*>(model_cloud.data.data());
+	auto *model_points = reinterpret_cast<MyPoint *>(model_cloud.data.data());
 	model_points[0] = MyPoint{1, 1, 0};
 	model_points[1] = MyPoint{2, 2, 0};
 	model_points[1] = MyPoint{3, 3, 0};
@@ -308,7 +308,7 @@ TEST(RegistrationTest, registration)
 	}
 	
 	{
-		Eigen::Vector3f trans{0., 0., M_PI/8};
+		Eigen::Vector3f trans{0., 0., M_PI / 8};
 		
 		sensor_msgs::PointCloud2 scan_cloud = model_cloud;
 		
@@ -326,13 +326,13 @@ TEST(RegistrationTest, registration)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "registration_test");
-    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
-    {
-        ros::console::notifyLoggerLevelsChanged(); // To show debug output in the tests
-    }
-
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+	ros::init(argc, argv, "registration_test");
+	if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
+	{
+		ros::console::notifyLoggerLevelsChanged(); // To show debug output in the tests
+	}
+	
+	testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }
 

@@ -2,7 +2,7 @@
 
 /**
   * @file registration.h
-  * @author julian 
+  * @author julian gaal
   * @date 2/13/21
  */
 
@@ -34,19 +34,19 @@ public:
 	 * @param queue_size size of queue
 	 * @param icp_params ICP Parameters
 	 */
-	Registration(ros::NodeHandle& nh, const std::string& topic, size_t queue_size, const types::ICPParams& icp_params);
+	Registration(ros::NodeHandle &nh, const std::string &topic, size_t queue_size, const types::ICPParams &icp_params);
 	
 	/// Default destructor. Queue cleanup is handles by ROS
 	~Registration() = default;
 	
 	/// Delete move constructor
-	Registration(Registration&& other) = delete;
+	Registration(Registration &&other) = delete;
 	
 	/// Delete Copy Constructor
-	Registration(const Registration& other) = delete;
+	Registration(const Registration &other) = delete;
 	
 	/// Delete Assignment operator
-	Registration& operator=(const Registration& other) = delete;
+	Registration &operator=(const Registration &other) = delete;
 	
 	/**
 	 * static for testing
@@ -63,17 +63,17 @@ public:
 	 * @return Transformation (tx, ty, theta) between model and scan cloud
 	 */
 	static Eigen::Vector3f
-	performRegistration(const sensor_msgs::PointCloud2& scan_cloud,
-					 	const sensor_msgs::PointCloud2& model_cloud,
-					 	types::CorrVec& correlations,
-					 	float max_distance);
-	
+	performRegistration(const sensor_msgs::PointCloud2 &scan_cloud,
+											const sensor_msgs::PointCloud2 &model_cloud,
+											types::CorrVec &correlations,
+											float max_distance);
+
 private:
 	/**
 	 * PointCloud callback: build queue with 2 pointclouds and performs registration between scan n-1 and scan n
 	 * @param pcl PointCloud
 	 */
-	void pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl);
+	void pclCallback(const sensor_msgs::PointCloud2::ConstPtr &pcl);
 	
 	/**
 	 * Publishes transform after converting Transform (tx, ty, theta) to geometry_msgs::TransformStamped
@@ -81,7 +81,7 @@ private:
 	 * @param tf calculated transform
 	 * @param header Header of model
 	 */
-	void publishTransform(const Eigen::Vector3f& tf, const std_msgs::Header& header);
+	void publishTransform(const Eigen::Vector3f &tf, const std_msgs::Header &header);
 	
 	/**
 	 * static for testing
@@ -93,12 +93,12 @@ private:
 	 * @param s_center scan center
 	 * @return Transformation (tx, ty, theta)
 	 */
-	static Eigen::Vector3f calculateTransform(const types::CorrVec& correlations,
-									   const geometry_msgs::Point32& m_center,
-									   const geometry_msgs::Point32& s_center);
+	static Eigen::Vector3f calculateTransform(const types::CorrVec &correlations,
+																						const geometry_msgs::Point32 &m_center,
+																						const geometry_msgs::Point32 &s_center);
 	
 	/// ICP Parameters
-	const types::ICPParams& icp_params;
+	const types::ICPParams &icp_params;
 	
 	/// subscribes to pointcloud
 	ros::Subscriber subscriber;
