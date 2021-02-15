@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Max distance of potentially correlating points -->
+    <arg name="max_distance" default="1.0"/>
+    <!-- If dtheta falls below min_dtheta, Registration is complete -->
+    <arg name="min_dtheta" default="1.0"/>
+    <!-- Registration is stopped after max_it iterations -->
+    <arg name="max_it" default="25"/>
+    <!-- Queue size of point cloud subscriber -->
+    <!-- Queue size of point cloud subscriber -->
+    <arg name="queue_size" default="100"/>
+    <!-- Which topic to receive pointcloud from -->
+    <arg name="pcl_topic" default="cloud"/>
+
+    <node name="registration_node" type="registration_node" pkg="registration" output="screen">
+        <param name="max_distance" type="double" value="$(arg max_distance)" />
+        <param name="min_dtheta" type="double" value="$(arg min_dtheta)" />
+        <param name="max_it" type="int" value="$(arg max_it)" />
+        <param name="queue_size" type="int" value="$(arg queue_size)" />
+        <remap from="pcl" to="$(arg pcl_topic)"/>
+    </node>
+</launch>

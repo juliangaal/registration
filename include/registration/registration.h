@@ -32,9 +32,9 @@ public:
 	 * @param nh NodeHandle, for pubs and subs
 	 * @param topic topic to subscribe to
 	 * @param queue_size size of queue
-	 * @param max_distance max distance after which points won't be correlated
+	 * @param icp_params ICP Parameters
 	 */
-	Registration(ros::NodeHandle& nh, const std::string& topic, size_t queue_size, float max_distance);
+	Registration(ros::NodeHandle& nh, const std::string& topic, size_t queue_size, const types::ICPParams& icp_params);
 	
 	/// Default destructor. Queue cleanup is handles by ROS
 	~Registration() = default;
@@ -97,8 +97,8 @@ private:
 									   const geometry_msgs::Point32& m_center,
 									   const geometry_msgs::Point32& s_center);
 	
-	/// max distance after which points won't be correlated
-	float max_distance;
+	/// ICP Parameters
+	const types::ICPParams& icp_params;
 	
 	/// subscribes to pointcloud
 	ros::Subscriber subscriber;

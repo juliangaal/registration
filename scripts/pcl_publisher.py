@@ -70,6 +70,6 @@ def main():
 
 if __name__ == '__main__':
     rospy.init_node("create_pcl2")
-    pcl_pub = rospy.Publisher("pcl", PointCloud2, queue_size=2)
+    pcl_pub = rospy.Publisher("cloud", PointCloud2, queue_size=2)
     rospy.loginfo("Starting node")
     main()

@@ -10,8 +10,7 @@
 #include <registration/types.h>
 
 #define SKIP_NULLPTR(X, Y) if (X == nullptr or Y == nullptr) continue
-#define THROW_IF_COND(X, OP, Y, DESC) if (X OP Y) throw std::runtime_error(DESC)
-#define THROW_IF(X, DESC) if (X) throw std::runtime_error(DESC)
+#define THROW_IF(X, DESC) if ((X)) throw std::runtime_error(DESC)
 
 namespace registration::misc
 {

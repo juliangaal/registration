@@ -17,15 +17,18 @@ using namespace registration;
 Registration::Registration(ros::NodeHandle& nh,
 						   const std::string& topic,
 						   size_t queue_size,
-						   float max_distance)
-: max_distance{max_distance}
+						   const types::ICPParams& icp_params)
+: icp_params{icp_params}
 , subscriber{nh.subscribe(topic, queue_size, &Registration::pclCallback, this)}
 , publisher{nh.advertise<sensor_msgs::PointCloud2>("transformed_pcl", 10)}
 , queue{}
 , br{}
 {
 	THROW_IF(topic.empty(), "Topic can't be empty");
-	THROW_IF_COND(queue_size, <, 2, "Queue size must be larger than 2");
+	THROW_IF(queue_size < 2, "Queue size must be larger than 2");
+	THROW_IF(icp_params.max_it < 1, "max iterations can't be smaller than 1");
+	THROW_IF(icp_params.min_dtheta == 0, "min_dtheta can't be 0");
+	THROW_IF(icp_params.max_distance == 0, "max_distance can't be 0");
 }
 
 void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
@@ -58,10 +61,10 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 	sensor_msgs::PointCloud2 transformed_cloud = *scan_cloud;
 	types::CorrVec correlations{n_points};
 	
-	while (delta_trans.z() > angles::from_degrees(1) && it <= 10)
+	while (delta_trans.z() > icp_params.min_dtheta && it <= icp_params.max_it)
 	{
 		// Calculate transform
-		delta_trans = performRegistration(transformed_cloud, *model_cloud, correlations, max_distance);
+		delta_trans = performRegistration(transformed_cloud, *model_cloud, correlations, icp_params.max_distance);
 		
 		ROS_INFO_STREAM(it << " - Transform:\n" << delta_trans);
 		
