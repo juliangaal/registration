@@ -107,7 +107,7 @@ private:
 	ros::Publisher publisher;
 	
 	/// builds queue of 2 scans
-	std::queue<sensor_msgs::PointCloud2> queue;
+	std::queue<sensor_msgs::PointCloud2::ConstPtr> queue;
 	
 	/// publishes transform
 	tf2_ros::TransformBroadcaster br;

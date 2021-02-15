@@ -30,7 +30,7 @@ Registration::Registration(ros::NodeHandle& nh,
 
 void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 {
-	queue.push(*pcl.get());
+	queue.push(pcl);
 	
 	// Before two scans haven't been received, do nothing
 	if (queue.size() < 2)
@@ -42,30 +42,31 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 	auto& scan_cloud = queue.back();
 	
 	// Check for empty pointcloud
-	if (scan_cloud.data.empty() or model_cloud.data.empty())
+	if (scan_cloud->data.empty() or model_cloud->data.empty())
 	{
 		ROS_WARN("Received empty pointcloud");
 		return;
 	}
 	
-	auto n_points = std::max(scan_cloud.width, model_cloud.width);
+	auto n_points = std::max(scan_cloud->width, model_cloud->width);
 	
 	// 2d Transforms in shape (tx, ty, theta): transation x, translation y, rotation theta
 	Eigen::Vector3f global_trans(0, 0, 0);
 	Eigen::Vector3f delta_trans(1.f, 1.f, 1.f);
 	size_t it = 0;
 	
+	sensor_msgs::PointCloud2 transformed_cloud = *scan_cloud;
 	types::CorrVec correlations{n_points};
 	
 	while (delta_trans.z() > angles::from_degrees(1) && it <= 10)
 	{
 		// Calculate transform
-		delta_trans = performRegistration(scan_cloud, model_cloud, correlations, max_distance);
+		delta_trans = performRegistration(transformed_cloud, *model_cloud, correlations, max_distance);
 		
 		ROS_INFO_STREAM(it << " - Transform:\n" << delta_trans);
 		
 		// transform pointcloud for next iteration
-		geometry::transformPointCloud(delta_trans, scan_cloud);
+		geometry::transformPointCloud(delta_trans, transformed_cloud);
 		
 		// update global transform
 		global_trans += geometry::createRotationMatrix(delta_trans.z()) * delta_trans;
@@ -77,7 +78,7 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr& pcl)
 	ROS_INFO_STREAM("Done. Global transform:\n" << global_trans);
 	publisher.publish(scan_cloud);
 	
-	publishTransform(global_trans, model_cloud.header);
+	publishTransform(global_trans, model_cloud->header);
 	
 	// Pop model from queue. Scan is model in next iteration
 	queue.pop();
