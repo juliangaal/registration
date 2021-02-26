@@ -51,7 +51,7 @@ void Registration::pclCallback(const sensor_msgs::PointCloud2::ConstPtr &pcl)
 	auto n_points = std::max(scan_cloud->width, model_cloud->width);
 	
 	// 2d Transforms in shape (tx, ty, theta): transation x, translation y, rotation theta
-	Eigen::Vector3f global_trans(0, 0, 0);
+	static Eigen::Vector3f global_trans(0, 0, 0);
 	Eigen::Vector3f delta_trans(1.f, 1.f, 1.f);
 	size_t it = 0;
 	
@@ -88,7 +88,7 @@ void Registration::publishTransform(const Eigen::Vector3f &tf, const std_msgs::H
 {
 	geometry_msgs::TransformStamped tf_stamped;
 	tf_stamped.header.stamp = header.stamp;
-	tf_stamped.header.frame_id = "base_link";
+	tf_stamped.header.frame_id = "world";
 	tf_stamped.child_frame_id = header.frame_id;
 	
 	tf2::Transform transform;

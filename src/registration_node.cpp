@@ -35,11 +35,11 @@ int main(int argc, char **argv)
 	size_t queue_size = getParam(nh, "queue_size", 100);
 	
 	types::ICPParams icp_params
-			{
-					static_cast<float>(getParam(nh, "registration_node/max_distance", 1.0)),
-					static_cast<float>(angles::from_degrees(getParam(nh, "registration_node/min_dtheta", 1.0))),
-					static_cast<float>(getParam(nh, "registration_node/max_it", 25.0))
-			};
+	{
+			static_cast<float>(getParam(nh, "registration_node/max_distance", 1.0)),
+			static_cast<float>(angles::from_degrees(getParam(nh, "registration_node/min_dtheta", 1.0))),
+			static_cast<float>(getParam(nh, "registration_node/max_it", 25.0))
+	};
 	
 	ROS_INFO_STREAM(icp_params);
 	
