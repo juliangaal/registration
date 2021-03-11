@@ -37,6 +37,11 @@ target_compile_options(registration PRIVATE -Wall -Weffc++ -Wpedantic -ffast-mat
 target_include_directories(${PROJECT_NAME}_node PRIVATE ${catkin_INCLUDE_DIRS} include)
 target_link_libraries(${PROJECT_NAME}_node PRIVATE ${catkin_LIBRARIES} registration)
 
+add_executable(tsdf_node src/tsdf_node.cpp)
+target_compile_options(tsdf_node PRIVATE -Wall -Weffc++ -Wpedantic -ffast-math -Wextra)
+target_include_directories(tsdf_node PRIVATE ${catkin_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS} include)
+target_link_libraries(tsdf_node PRIVATE ${catkin_LIBRARIES})
+
 if (CATKIN_ENABLE_TESTING)
     find_package(GTest REQUIRED)
     find_package(rostest REQUIRED)
