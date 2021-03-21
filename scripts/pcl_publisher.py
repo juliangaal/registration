@@ -51,9 +51,9 @@ def main():
     #
     #     pt.append(0)
     #     points.append(pt)
-    points.append([6.5, 0.5, 0])
-    points.append([6.5, 5.5, 0])
-    points.append([6.5, 10.5, 0])
+    points.append([6.5, 0.0, 0.0])
+    # points.append([6.5, 5.5, 0])
+    # points.append([6.5, 10.5, 0])
     fields = [PointField('x', 0, PointField.FLOAT32, 1),
               PointField('y', 4, PointField.FLOAT32, 1),
               PointField('z', 8, PointField.FLOAT32, 1)]
