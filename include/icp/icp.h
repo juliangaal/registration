@@ -11,7 +11,7 @@
 #include <cmath>
 
 #include <ros/node_handle.h>
-#include <registration/types.h>
+#include <icp/types.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <tf2_ros/transform_broadcaster.h>
 

@@ -7,7 +7,7 @@
  */
 
 #include <ostream>
-#include <registration/types.h>
+#include <icp/types.h>
 
 #define SKIP_NULLPTR(X, Y) if (X == nullptr or Y == nullptr) continue
 #define THROW_IF(X, DESC) if ((X)) throw std::runtime_error(DESC)

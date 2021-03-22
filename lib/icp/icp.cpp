@@ -6,9 +6,9 @@
  */
 
 #include <angles/angles.h>
-#include <registration/registration.h>
-#include <registration/geometry.h>
-#include <registration/misc.h>
+#include <icp/icp.h>
+#include <slam/geometry.h>
+#include <icp/misc.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
