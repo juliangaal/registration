@@ -107,7 +107,7 @@ int to_local_map(Eigen::Vector3i& center)
 void tsdfCallback(const sensor_msgs::PointCloud2ConstPtr& pcl)
 {
 	std::vector<Eigen::Vector3f> marching_values(10, {0., 0., 0.});
-	std::vector<Eigen::Vector3i> centers(10, {0, 0, 0});
+	std::vector<Eigen::Vector3i> centers(5);
 	std::vector<float> tsdf_values(map_size.prod(), 0.0);
 	Eigen::Vector3i prev_center(0, 0, 0);
 	
