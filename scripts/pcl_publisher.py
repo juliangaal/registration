@@ -44,14 +44,16 @@ def main():
     ox = oy = lim // 2
     rotation = np.pi / 32
 
-    for i in range(lim):
-        pt = [i, i]
-        if i > ox:
-            pt = rotate_point(ox, oy, rot, [i, i])
-
-        pt.append(0)
-        points.append(pt)
-
+    # for i in range(lim):
+    #     pt = [i, i]
+    #     if i > ox:
+    #         pt = rotate_point(ox, oy, rot, [i, i])
+    #
+    #     pt.append(0)
+    #     points.append(pt)
+    points.append([6.5, 0.0, 0.0])
+    # points.append([6.5, 5.5, 0])
+    # points.append([6.5, 10.5, 0])
     fields = [PointField('x', 0, PointField.FLOAT32, 1),
               PointField('y', 4, PointField.FLOAT32, 1),
               PointField('z', 8, PointField.FLOAT32, 1)]
@@ -61,7 +63,7 @@ def main():
         header.frame_id = "laser"
         header.stamp = rospy.Time.now()
         pcl = point_cloud2.create_cloud(header, fields, points)
-        points = translate(points, 0.5, 0.5)
+        # points = translate(points, 0.5, 0.5)
         pcl_pub.publish(pcl)
         rospy.sleep(1.5)
         rospy.loginfo("Published scan")

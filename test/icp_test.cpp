@@ -13,8 +13,8 @@
 #include <gtest/gtest.h>
 
 #include <registration/misc.h>
-#include <registration/geometry.h>
-#include <registration/registration.h>
+#include <slam/geometry.h>
+#include <registration/icp.h>
 
 #include <Eigen/Dense>
 
@@ -326,7 +326,7 @@ TEST(RegistrationTest, registration)
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "registration_test");
+	ros::init(argc, argv, "icp_test");
 	if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
 	{
 		ros::console::notifyLoggerLevelsChanged(); // To show debug output in the tests

@@ -7,7 +7,7 @@
 
 #include <ros/ros.h>
 #include <angles/angles.h>
-#include <registration/registration.h>
+#include <icp/icp.h>
 
 using namespace registration;
 
