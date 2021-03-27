@@ -12,7 +12,7 @@
 #define SKIP_NULLPTR(X, Y) if (X == nullptr or Y == nullptr) continue
 #define THROW_IF(X, DESC) if ((X)) throw std::runtime_error(DESC)
 
-namespace registration::misc
+namespace icp::misc
 {
 
 /**
@@ -39,7 +39,7 @@ inline std::ostream &operator<<(std::ostream &os, const T &point)
  */
 inline void updateCenters(geometry_msgs::Point32 &m_center,
 													geometry_msgs::Point32 &s_center,
-													const registration::types::CorrPair &pair)
+													const icp::types::CorrPair &pair)
 {
 	const auto&[mp, sp] = pair;
 	m_center.x += mp->x;

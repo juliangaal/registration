@@ -6,11 +6,15 @@ on:
   push:
     branches: [ '**' ]
 
-steps:
-  - uses: ros-tooling/setup-ros@v0.1
-    with:
-      required-ros-distributions: melodic
-  - uses: ros-tooling/action-ros-ci@v0.1
-    with:
-      package-name: slam
-      target-ros1-distro: noetic
+jobs:
+  test:
+    name: Build and Test ROS package
+      - uses: ros-tooling/setup-ros@v0.1
+        with:
+          required-ros-distributions: noetic
+      - uses: ros-tooling/action-ros-ci@v0.1
+        with:
+          package-name: slam
+          target-ros1-distro: noetic
+      - name: Run tests
+        run: catkin_make -j8 run_tests_slam

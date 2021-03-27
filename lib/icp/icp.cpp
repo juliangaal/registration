@@ -12,7 +12,8 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-using namespace registration;
+using namespace icp;
+using namespace slam;
 
 Registration::Registration(ros::NodeHandle &nh,
 													 const std::string &topic,
