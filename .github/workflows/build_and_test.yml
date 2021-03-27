@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     name: Build and Test ROS package
+    steps:
       - uses: ros-tooling/setup-ros@v0.1
         with:
           required-ros-distributions: noetic
