@@ -12,9 +12,9 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <gtest/gtest.h>
 
-#include <registration/misc.h>
+#include <icp/misc.h>
 #include <slam/geometry.h>
-#include <registration/icp.h>
+#include <icp/icp.h>
 
 #include <Eigen/Dense>
 
@@ -22,7 +22,7 @@ constexpr float epsilon = 0.001;
 
 TEST(MiscTest, centers)
 {
-	using namespace registration;
+	using namespace icp;
 	
 	geometry_msgs::Point32 center;
 	center.x = 1;
@@ -59,7 +59,7 @@ TEST(MiscTest, centers)
 
 TEST(GeometryTest, rotation_only)
 {
-	using namespace registration;
+	using namespace slam;
 	
 	Eigen::Vector3f trans{0, 0, M_PI};
 	
@@ -94,7 +94,7 @@ TEST(GeometryTest, rotation_only)
 
 TEST(GeometryTest, rotation_and_translation)
 {
-	using namespace registration;
+	using namespace slam;
 	
 	Eigen::Vector3f trans{1, 3, M_PI};
 	
@@ -113,7 +113,7 @@ TEST(GeometryTest, rotation_and_translation)
 
 TEST(GeometryTest, euclideanDistance)
 {
-	using namespace registration;
+	using namespace slam;
 	
 	geometry_msgs::Point32 p1;
 	p1.x = 1;
@@ -145,7 +145,7 @@ TEST(GeometryTest, euclideanDistance)
 
 TEST(GeometryTest, transformPointCloud_rotation)
 {
-	using namespace registration;
+	using namespace slam;
 	
 	// Pointclound in Ebene with 2 points
 	sensor_msgs::PointCloud2 cloud;
@@ -249,7 +249,8 @@ TEST(GeometryTest, transformPointCloud_rotation)
 
 TEST(RegistrationTest, registration)
 {
-	using namespace registration;
+	using namespace icp;
+	using namespace slam;
 	
 	// Pointclound in Ebene with 2 points
 	sensor_msgs::PointCloud2 model_cloud;

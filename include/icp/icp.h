@@ -17,7 +17,7 @@
 
 #include <Eigen/Dense>
 
-namespace registration
+namespace icp
 {
 
 /**

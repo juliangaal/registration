@@ -10,7 +10,7 @@
 #include <ros/console.h>
 #include <sensor_msgs/PointCloud2.h>
 
-namespace registration::geometry
+namespace slam::geometry
 {
 
 /**

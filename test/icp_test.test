@@ -1,5 +1,5 @@
 <launch>
     <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${time}] ${logger}: ${message}"/>
-    <test test-name="test" pkg="registration" type="registration_test" time-limit="10.0">
+    <test test-name="test" pkg="slam" type="icp_test" time-limit="10.0">
     </test>
 </launch>

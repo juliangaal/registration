@@ -9,7 +9,7 @@
 #include <geometry_msgs/Point32.h>
 #include <vector>
 
-namespace registration::types
+namespace icp::types
 {
 /// defines correlations between two points in point cloud
 using CorrPair = std::pair<const geometry_msgs::Point32 *, const geometry_msgs::Point32 *>;
@@ -31,7 +31,7 @@ struct ICPParams
 };
 }
 
-inline std::ostream &operator<<(std::ostream &os, const registration::types::ICPParams &icp_params)
+inline std::ostream &operator<<(std::ostream &os, const icp::types::ICPParams &icp_params)
 {
 	os << "ICP Parameters: \n";
 	os << "  max_distance: " << icp_params.max_distance << "\n";
