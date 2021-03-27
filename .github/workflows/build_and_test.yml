@@ -16,7 +16,7 @@ jobs:
           required-ros-distributions: melodic
       - uses: ros-tooling/action-ros-ci@v0.1
         with:
-          package-name: my_package
+          package-name: slam
           target-ros1-distro: melodic
   test_noetic:
     name: Build and Test ROS Noetic package
