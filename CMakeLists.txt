@@ -43,7 +43,11 @@ target_include_directories(tsdf_node PRIVATE ${catkin_INCLUDE_DIRS} ${Eigen_INCL
 target_link_libraries(tsdf_node PRIVATE ${catkin_LIBRARIES})
 
 if (CATKIN_ENABLE_TESTING)
-    find_package(GTest REQUIRED)
+    if (${roscpp_VERSION_MINOR} GREATER 14)
+        message(STATUS "SLAM: Detected ROS Noetic, enabling GTest")
+        find_package(GTest REQUIRED)
+    endif()
+
     find_package(rostest REQUIRED)
 
     add_rostest_gtest(icp_test
