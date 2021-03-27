@@ -7,8 +7,19 @@ on:
     branches: [ '**' ]
 
 jobs:
-  test:
-    name: Build and Test ROS package
+  test_melodic:
+    name: Build and Test ROS melodic package
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: ros-tooling/setup-ros@v0.1
+        with:
+          required-ros-distributions: melodic
+      - uses: ros-tooling/action-ros-ci@v0.1
+        with:
+          package-name: my_package
+          target-ros1-distro: melodic
+  test_noetic:
+    name: Build and Test ROS Noetic package
     runs-on: ubuntu-20.04
     steps:
       - uses: ros-tooling/setup-ros@v0.1
